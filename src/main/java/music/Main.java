@@ -9,6 +9,7 @@ import music.service.PlaylistService;
 
 import static java.lang.System.out;
 
+// Lab 4: Jenkins automatic build verification
 public class Main {
     public static void main(String[] args) {
         PlaylistRepository repository = new InMemoryPlaylistRepository();
