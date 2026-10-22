@@ -56,4 +56,14 @@ public class PlaylistServiceTest {
                 () -> service.addTrackToPlaylist(playlist.getId(), duplicate));
         assertEquals(1, playlist.getTracks().size());
     }
+
+    // лр4: проверка, что после добавления трека в плейлист его можно найти по идентификатору
+    @Test
+    void shouldContainAddedTrack() {
+        Track track = new Track(10, "Новый трек", "Исполнитель");
+
+        service.addTrackToPlaylist(playlist.getId(), track);
+
+        assertTrue(playlist.hasTrack(10));
+    }
 }
