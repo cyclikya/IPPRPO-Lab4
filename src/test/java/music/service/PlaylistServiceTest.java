@@ -29,7 +29,7 @@ public class PlaylistServiceTest {
 
         service.addTrackToPlaylist(playlist.getId(), track);
 
-        assertEquals(1, playlist.getTracks().size());
+        assertEquals(999, playlist.getTracks().size());
         assertTrue(playlist.hasTrack(1));
     }
 
