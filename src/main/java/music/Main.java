@@ -6,11 +6,12 @@ import music.model.User;
 import music.repository.InMemoryPlaylistRepository;
 import music.repository.PlaylistRepository;
 import music.service.PlaylistService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static java.lang.System.out;
-
-// Lab 4: Jenkins automatic build verification
 public class Main {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         PlaylistRepository repository = new InMemoryPlaylistRepository();
         PlaylistService service = new PlaylistService(repository);
@@ -27,16 +28,16 @@ public class Main {
         try {
             service.addTrackToPlaylist(1, track1);
         } catch (IllegalStateException e) {
-            out.println("Ошибка: " + e.getMessage());
+            LOGGER.debug("Ожидаемое исключение при добавлении того же объекта трека", e);
         }
 
         Track track1Copy = new Track(1, "Днями и ночами", "Бушидо Джо");
         try {
             service.addTrackToPlaylist(1, track1Copy);
         } catch (IllegalStateException e) {
-            out.println("Ошибка: " + e.getMessage());
+            LOGGER.debug("Ожидаемое исключение при добавлении трека с тем же id", e);
         }
 
-        out.println(playlist);
+        LOGGER.info("Итоговое состояние плейлиста: {}", playlist);
     }
 }

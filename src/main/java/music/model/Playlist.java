@@ -25,11 +25,11 @@ public class Playlist {
         return owner;
     }
 
-    public void addTrack(Track track){
+    public void addTrack(Track track) {
         tracks.add(track);
     }
 
-    public List<Track> getTracks(){
+    public List<Track> getTracks() {
         return List.copyOf(tracks);
     }
 

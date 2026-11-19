@@ -8,7 +8,9 @@ import music.repository.PlaylistRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PlaylistServiceTest {
     private PlaylistService service;
@@ -17,7 +19,7 @@ public class PlaylistServiceTest {
     @BeforeEach
     void setUp() {
         PlaylistRepository repository = new InMemoryPlaylistRepository();
-        service = new PlaylistService(repository);   // Dependency Injection в тесте
+        service = new PlaylistService(repository);
         User user = new User(1, "Виолетта");
         playlist = service.createPlaylist(1, "хайп", user);
     }
@@ -29,7 +31,6 @@ public class PlaylistServiceTest {
 
         service.addTrackToPlaylist(playlist.getId(), track);
 
-//        assertEquals(999, playlist.getTracks().size());
         assertEquals(1, playlist.getTracks().size());
         assertTrue(playlist.hasTrack(1));
     }
