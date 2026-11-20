@@ -25,7 +25,7 @@ public class PlaylistService {
 
     public void addTrackToPlaylist(int playlistId, Track track) {
         Playlist playlist = repository.findById(playlistId);
-        if (playlist == null) {
+        if (playlist == null){
             LOGGER.error("Невозможно добавить трек {}: плейлист {} не найден", track.getId(), playlistId);
             throw new IllegalArgumentException("Плейлист не найден");
         }

@@ -1,0 +1,172 @@
+[1mdiff --git a/Jenkinsfile b/Jenkinsfile[m
+[1mindex 64a19ed..827918c 100644[m
+[1m--- a/Jenkinsfile[m
+[1m+++ b/Jenkinsfile[m
+[36m@@ -8,6 +8,12 @@[m [mpipeline {[m
+             }[m
+         }[m
+ [m
+[32m+[m[32m        stage('Static Analysis') {[m
+[32m+[m[32m            steps {[m
+[32m+[m[32m                bat 'mvn checkstyle:check'[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+         stage('Test') {[m
+             steps {[m
+                 bat 'mvn test'[m
+[36m@@ -26,4 +32,4 @@[m [mpipeline {[m
+             }[m
+         }[m
+     }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/pom.xml b/pom.xml[m
+[1mindex a34d3d8..c7e8bce 100644[m
+[1m--- a/pom.xml[m
+[1m+++ b/pom.xml[m
+[36m@@ -15,6 +15,16 @@[m
+     </properties>[m
+ [m
+     <dependencies>[m
+[32m+[m[32m        <dependency>[m
+[32m+[m[32m            <groupId>org.slf4j</groupId>[m
+[32m+[m[32m            <artifactId>slf4j-api</artifactId>[m
+[32m+[m[32m            <version>2.0.20</version>[m
+[32m+[m[32m        </dependency>[m
+[32m+[m[32m        <dependency>[m
+[32m+[m[32m            <groupId>ch.qos.logback</groupId>[m
+[32m+[m[32m            <artifactId>logback-classic</artifactId>[m
+[32m+[m[32m            <version>1.6.7</version>[m
+[32m+[m[32m        </dependency>[m
+         <dependency>[m
+             <groupId>org.junit.jupiter</groupId>[m
+             <artifactId>junit-jupiter</artifactId>[m
+[36m@@ -25,6 +35,25 @@[m
+ [m
+     <build>[m
+         <plugins>[m
+[32m+[m[32m            <plugin>[m
+[32m+[m[32m                <groupId>org.apache.maven.plugins</groupId>[m
+[32m+[m[32m                <artifactId>maven-checkstyle-plugin</artifactId>[m
+[32m+[m[32m                <version>3.6.0</version>[m
+[32m+[m[32m                <configuration>[m
+[32m+[m[32m                    <configLocation>checkstyle.xml</configLocation>[m
+[32m+[m[32m                    <consoleOutput>true</consoleOutput>[m
+[32m+[m[32m                    <failOnViolation>true</failOnViolation>[m
+[32m+[m[32m                    <includeTestSourceDirectory>true</includeTestSourceDirectory>[m
+[32m+[m[32m                    <linkXRef>false</linkXRef>[m
+[32m+[m[32m                </configuration>[m
+[32m+[m[32m                <dependencies>[m
+[32m+[m[32m                    <dependency>[m
+[32m+[m[32m                        <groupId>com.puppycrawl.tools</groupId>[m
+[32m+[m[32m                        <artifactId>checkstyle</artifactId>[m
+[32m+[m[32m                        <version>14.4.0</version>[m
+[32m+[m[32m                    </dependency>[m
+[32m+[m[32m                </dependencies>[m
+[32m+[m[32m            </plugin>[m
+             <plugin>[m
+                 <groupId>org.apache.maven.plugins</groupId>[m
+                 <artifactId>maven-surefire-plugin</artifactId>[m
+[1mdiff --git a/src/main/java/music/Main.java b/src/main/java/music/Main.java[m
+[1mindex 4f9571c..fb11080 100644[m
+[1m--- a/src/main/java/music/Main.java[m
+[1m+++ b/src/main/java/music/Main.java[m
+[36m@@ -6,11 +6,12 @@[m [mimport music.model.User;[m
+ import music.repository.InMemoryPlaylistRepository;[m
+ import music.repository.PlaylistRepository;[m
+ import music.service.PlaylistService;[m
+[32m+[m[32mimport org.slf4j.Logger;[m[41m[m
+[32m+[m[32mimport org.slf4j.LoggerFactory;[m[41m[m
+ [m
+[31m-import static java.lang.System.out;[m
+[31m-[m
+[31m-// Lab 4: Jenkins automatic build verification[m
+ public class Main {[m
+[32m+[m[32m    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);[m[41m[m
+[32m+[m[41m[m
+     public static void main(String[] args) {[m
+         PlaylistRepository repository = new InMemoryPlaylistRepository();[m
+         PlaylistService service = new PlaylistService(repository);[m
+[36m@@ -27,16 +28,16 @@[m [mpublic class Main {[m
+         try {[m
+             service.addTrackToPlaylist(1, track1);[m
+         } catch (IllegalStateException e) {[m
+[31m-            out.println("Ошибка: " + e.getMessage());[m
+[32m+[m[32m            LOGGER.debug("Ожидаемое исключение при добавлении того же объекта трека", e);[m[41m[m
+         }[m
+ [m
+         Track track1Copy = new Track(1, "Днями и ночами", "Бушидо Джо");[m
+         try {[m
+             service.addTrackToPlaylist(1, track1Copy);[m
+         } catch (IllegalStateException e) {[m
+[31m-            out.println("Ошибка: " + e.getMessage());[m
+[32m+[m[32m            LOGGER.debug("Ожидаемое исключение при добавлении трека с тем же id", e);[m[41m[m
+         }[m
+ [m
+[31m-        out.println(playlist);[m
+[32m+[m[32m        LOGGER.info("Итоговое состояние плейлиста: {}", playlist);[m[41m[m
+     }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m[41m[m
+[1mdiff --git a/src/main/java/music/model/Playlist.java b/src/main/java/music/model/Playlist.java[m
+[1mindex 20fba29..de537ba 100644[m
+[1m--- a/src/main/java/music/model/Playlist.java[m
+[1m+++ b/src/main/java/music/model/Playlist.java[m
+[36m@@ -25,11 +25,11 @@[m [mpublic class Playlist {[m
+         return owner;[m
+     }[m
+ [m
+[31m-    public void addTrack(Track track){[m
+[32m+[m[32m    public void addTrack(Track track) {[m[41m[m
+         tracks.add(track);[m
+     }[m
+ [m
+[31m-    public List<Track> getTracks(){[m
+[32m+[m[32m    public List<Track> getTracks() {[m[41m[m
+         return List.copyOf(tracks);[m
+     }[m
+ [m
+[1mdiff --git a/src/main/java/music/service/PlaylistService.java b/src/main/java/music/service/PlaylistService.java[m
+[1mindex ccaa8dd..0739d45 100644[m
+[1m--- a/src/main/java/music/service/PlaylistService.java[m
+[1m+++ b/src/main/java/music/service/PlaylistService.java[m
+[36m@@ -4,8 +4,12 @@[m [mimport music.model.Playlist;[m
+ import music.model.Track;[m
+ import music.model.User;[m
+ import music.repository.PlaylistRepository;[m
+[32m+[m[32mimport org.slf4j.Logger;[m[41m[m
+[32m+[m[32mimport org.slf4j.LoggerFactory;[m[41m[m
+ [m
+ public class PlaylistService {[m
+[32m+[m[32m    private static final Logger LOGGER = LoggerFactory.getLogger(PlaylistService.class);[m[41m[m
+[32m+[m[41m[m
+     private final PlaylistRepository repository;[m
+ [m
+     public PlaylistService(PlaylistRepository repository) {[m
+[36m@@ -15,18 +19,22 @@[m [mpublic class PlaylistService {[m
+     public Playlist createPlaylist(int id, String name, User owner) {[m
+         Playlist playlist = new Playlist(id, name, owner);[m
+         repository.save(playlist);[m
+[32m+[m[32m        LOGGER.info("Создан плейлист: id={}, name={}, owner={}", id, name, owner.getName());[m[41m[m
+         return playlist;[m
+     }[m
+ [m
+[31m-    public void addTrackToPlaylist(int playlistId, Track track) throws IllegalStateException {[m
+[32m+[m[32m    public void addTrackToPlaylist(int playlistId, Track track) {[m[41m[m
+         Playlist playlist = repository.findById(playlistId);[m
+[31m-        if(playlist == null){[m
+[32m+[m[32m        if (playlist == null) {[m[41m[m
+[32m+[m[32m            LOGGER.error("Невозможно добавить трек {}: плейлист {} не найден", track.getId(), playlistId);[m[41m[m
+             throw new IllegalArgumentException("Плейлист не найден");[m
+         }[m
+[31m-        if(playlist.hasTrack(track.getId())) {[m
+[32m+[m[32m        if (playlist.hasTrack(track.getId())) {[m[41m[m
+[32m+[m[32m            LOGGER.warn("Трек {} уже присутствует в плейлисте {}", track.getId(), playlistId);[m[41m[m
+             throw new IllegalStateException("Трек уже есть в плейлисте");[m
+         }[m
+         playlist.addTrack(track);[m
+         repository.save(playlist);[m
+[32m+[m[32m        LOGGER.in
